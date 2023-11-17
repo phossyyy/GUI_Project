@@ -8,13 +8,13 @@ pygame.init()
 
 #Loading Images
 GRASS = scale_image(pygame.image.load("GUI_Project/assets/grass.jpg"), 2.5)
-TRACK = scale_image(pygame.image.load("GUI_Project/assets/track.png"), 0.55)
+TRACK = scale_image(pygame.image.load("GUI_Project/assets/track.png"), 0.75)
 
 TRACK_BORDER = scale_image(pygame.image.load("GUI_Project/assets/track-border.png"), 0.9)
 FINISH = pygame.image.load("GUI_Project/assets/finish.png")
 
-RED_CAR = scale_image(pygame.image.load("GUI_Project/assets/red-car.png"), 0.55)
-GREEN_CAR = scale_image(pygame.image.load("GUI_Project/assets/green-car.png"), 0.55)
+RED_CAR = scale_image(pygame.image.load("GUI_Project/assets/red-car.png"), 0.45)
+GREEN_CAR = scale_image(pygame.image.load("GUI_Project/assets/green-car.png"), 0.45)
 
 WIDTH, HEIGHT = TRACK.get_width(), TRACK.get_height()
 
@@ -38,7 +38,7 @@ class AbstractCar:
 
 class PlayerCar(AbstractCar): 
     IMG = RED_CAR
-    START_POS = (100, 150)
+    START_POS = (120, 180)
 
     
 #Make Framerate

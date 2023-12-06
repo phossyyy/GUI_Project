@@ -46,8 +46,17 @@ class AbstractCar:
         vertical = math.cos(radians) * self.vel
         horizontal = math.sin(radians) * self.vel
 
-        self.y -= vertical
-        self.x -= horizontal
+        new_y = self.y - vertical
+        new_x = self.x - horizontal
+
+        # Check for border collision
+        if 0 <= new_x <= WIDTH - self.img.get_width() and 0 <= new_y <= HEIGHT - self.img.get_height():
+            self.y = new_y
+            self.x = new_x
+        else:
+            # If collision, stop the car (set velocity to 0)
+            self.vel = 0
+        
 
     def reduce_speed(self):
         self.vel = max(self.vel - self.acceleration/2, 0)

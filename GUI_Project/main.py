@@ -6,6 +6,10 @@ from Utilities import scale_image, blit_rotate_center
 #Initialize Pygame
 pygame.init()
 
+pygame.mixer.music.load('GUI_Project/assets/daisy.mp3')
+pygame.mixer.music.play(-1)
+
+
 #Loading Images
 GRASS = scale_image(pygame.image.load("GUI_Project/assets/grass.jpg"), 2.5)
 TRACK = scale_image(pygame.image.load("GUI_Project/assets/track.png"), 0.75)
@@ -13,8 +17,8 @@ TRACK = scale_image(pygame.image.load("GUI_Project/assets/track.png"), 0.75)
 TRACK_BORDER = scale_image(pygame.image.load("GUI_Project/assets/track-border.png"), 0.75)
 FINISH = pygame.image.load("GUI_Project/assets/finish.png")
 
-RED_CAR = scale_image(pygame.image.load("GUI_Project/assets/red-car.png"), 0.45)
-GREEN_CAR = scale_image(pygame.image.load("GUI_Project/assets/green-car.png"), 0.45)
+RED_CAR = scale_image(pygame.image.load("GUI_Project/assets/red-car.png"), 0.3)
+GREEN_CAR = scale_image(pygame.image.load("GUI_Project/assets/green-car.png"), 0.3)
 
 # Assuming TRACK_BORDER is the surface of the track border
 track_border_mask = pygame.mask.from_surface(TRACK_BORDER)
@@ -28,7 +32,7 @@ class AbstractCar:
         self.vel  = 0
         self.rotation_vel = rotation_vel
         self.angle = 0
-        self.acceleration = 0.1
+        self.acceleration = 0.01
         self.x, self.y = self.START_POS
 
     def rotate(self, left = False, right = False):
@@ -80,7 +84,11 @@ class AbstractCar:
 
 class PlayerCar(AbstractCar): 
     IMG = RED_CAR
-    START_POS = (140 , 200)
+    START_POS = (120 , 200)
+
+class PlayerCar_2(AbstractCar): 
+    IMG = GREEN_CAR
+    START_POS = (160 , 200)
 
     
 #Make Framerate
@@ -98,15 +106,17 @@ screen = pygame.display.set_mode(( WIDTH , HEIGHT ))
 pygame.display.set_caption("GUI_Project")
 
 #Draw
-def draw(Screen, images, player_car):
+def draw(Screen, images, player_car, player_2_car):
     for img, pos in images:
         Screen.blit(img, pos)
 
     player_car.draw(screen)
+    player_car_2.draw(screen)
     pygame.display.update()
 
 images = [(GRASS, (0, 0)), (TRACK, (0,0))]
-player_car = PlayerCar( 5, 5)
+player_car = PlayerCar (5, 5)
+player_car_2 = PlayerCar_2 (5, 2)
 
 #GAME LOOP
 run = True
@@ -116,11 +126,12 @@ while run:
     #FRAMERATE
     clock.tick(FPS)
 
-    draw(screen, images, player_car)
+    draw(screen, images, player_car, player_car_2)
     #UPDATE THE SCREEN
 
     # Pass the track border mask to the move method
     player_car.move(track_border_mask)
+    player_car_2.move(track_border_mask)
 
     pygame.display.update()
 
@@ -130,6 +141,7 @@ while run:
 
     key = pygame.key.get_pressed()
     moved = False
+    moved2 = False
 
     if key[pygame.K_a]:
         player_car.rotate(left = True)
@@ -138,9 +150,19 @@ while run:
     if key[pygame.K_w]:
         moved = True
         player_car.move_foward()
-    
+
+    if key[pygame.K_LEFT]:
+        player_car_2.rotate(left = True)
+    if key[pygame.K_RIGHT]:
+        player_car_2.rotate(right = True)
+    if key[pygame.K_UP]:
+        moved2 = True
+        player_car_2.move_foward()
+
     if not moved:
         player_car.reduce_speed(track_border_mask)
+    if not moved2:
+        player_car_2.reduce_speed(track_border_mask)
     
 
     #Update Display

@@ -1,3 +1,5 @@
+GROUP NUMBER ##
+LAB SECTION 10.2
 Alexander Tellez
 Laura Martinez
 Rafael Sanchez

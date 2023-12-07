@@ -10,11 +10,14 @@ pygame.init()
 GRASS = scale_image(pygame.image.load("GUI_Project/assets/grass.jpg"), 2.5)
 TRACK = scale_image(pygame.image.load("GUI_Project/assets/track.png"), 0.75)
 
-TRACK_BORDER = scale_image(pygame.image.load("GUI_Project/assets/track-border.png"), 0.9)
+TRACK_BORDER = scale_image(pygame.image.load("GUI_Project/assets/track-border.png"), 0.75)
 FINISH = pygame.image.load("GUI_Project/assets/finish.png")
 
 RED_CAR = scale_image(pygame.image.load("GUI_Project/assets/red-car.png"), 0.45)
 GREEN_CAR = scale_image(pygame.image.load("GUI_Project/assets/green-car.png"), 0.45)
+
+# Assuming TRACK_BORDER is the surface of the track border
+track_border_mask = pygame.mask.from_surface(TRACK_BORDER)
 
 WIDTH, HEIGHT = TRACK.get_width(), TRACK.get_height()
 
@@ -39,9 +42,9 @@ class AbstractCar:
 
     def move_foward(self):
         self.vel = min(self.vel + self.acceleration, self.max_vel)
-        self.move()
+        self.move(track_border_mask)
 
-    def move(self):
+    def move(self, track_mask):
         radians = math.radians(self.angle)
         vertical = math.cos(radians) * self.vel
         horizontal = math.sin(radians) * self.vel
@@ -49,22 +52,35 @@ class AbstractCar:
         new_y = self.y - vertical
         new_x = self.x - horizontal
 
-        # Check for border collision
-        if 0 <= new_x <= WIDTH - self.img.get_width() and 0 <= new_y <= HEIGHT - self.img.get_height():
+        car_mask = pygame.mask.from_surface(self.img)
+        car_rect = self.img.get_rect(topleft=(new_x, new_y))
+        offset = (int(car_rect.x), int(car_rect.y))
+        collision_point = track_mask.overlap(car_mask, offset)
+
+        if collision_point is None:
             self.y = new_y
             self.x = new_x
         else:
             # If collision, stop the car (set velocity to 0)
             self.vel = 0
+
+    def reduce_speed(self, track_mask):
+        self.vel = max(self.vel - self.acceleration/2, 0)
+        self.move(track_mask)
+        
+        # # Check for border collision
+        # if 0 <= new_x <= WIDTH - self.img.get_width() and 0 <= new_y <= HEIGHT - self.img.get_height():
+        #     self.y = new_y
+        #     self.x = new_x
+        # else:
+        #     # If collision, stop the car (set velocity to 0)
+        #     self.vel = 0
         
 
-    def reduce_speed(self):
-        self.vel = max(self.vel - self.acceleration/2, 0)
-        self.move()
 
 class PlayerCar(AbstractCar): 
     IMG = RED_CAR
-    START_POS = (120, 180)
+    START_POS = (140 , 200)
 
     
 #Make Framerate
@@ -89,7 +105,7 @@ def draw(Screen, images, player_car):
     player_car.draw(screen)
     pygame.display.update()
 
-images = [(GRASS, (0, 0)), (TRACK, (0, 0))]
+images = [(GRASS, (0, 0)), (TRACK, (0,0))]
 player_car = PlayerCar( 5, 5)
 
 #GAME LOOP
@@ -102,6 +118,10 @@ while run:
 
     draw(screen, images, player_car)
     #UPDATE THE SCREEN
+
+    # Pass the track border mask to the move method
+    player_car.move(track_border_mask)
+
     pygame.display.update()
 
     for event in pygame.event.get():
@@ -120,7 +140,7 @@ while run:
         player_car.move_foward()
     
     if not moved:
-        player_car.reduce_speed()
+        player_car.reduce_speed(track_border_mask)
     
 
     #Update Display
